@@ -1,4 +1,4 @@
-function [ output_args ] = dataset_covariance( dataset_vectors, class_mean )
+function [ covariance ] = dataset_covariance( dataset_vectors, class_mean )
 %Compute covariance matrix for dataset.
 %   dataset_vectors contains feature vectors. Each column corresponds to
 %   one feature vector. All vectors are assumed to be in the same class.
