@@ -13,7 +13,7 @@ features = zeros(size(f));
 
 for sigma = [0.5 1 1.5 2]
     for length = [9 11 13 15]
-        responses = zeros(size(f));
+        responses = -Inf(size(f));
         for angle = 0:15:165
             kernel = matched_kernel(sigma, length, angle, false);
             responses = cat(3, responses, wkeep(conv2(kernel, f), size(f)));
@@ -22,7 +22,7 @@ for sigma = [0.5 1 1.5 2]
         max_response = max(responses, [], 3);
         features = cat(3, features, max_response);
         
-        responses = zeros(size(f));
+        responses = -Inf(size(f));
         for angle = 0:15:165
             kernel = matched_kernel(sigma, length, angle, true); %Gaussian derivative filter
             responses = cat(3, responses, wkeep(conv2(kernel, f), size(f)));
@@ -42,10 +42,10 @@ end
 % The angles range from 0 to 170 degrees, with angular step of 10 degrees.
 
 for scales = [2 2.5 3 3.5 4 4.5 5 5.5 6]
-    responses = zeros(size(f));
+    responses = -Inf(size(f));
     for angles = 0:10:170
         kernel = gabor_kernel(sigma, angle);
-        responses = cat(3, responses, wkeep(filt2(kernel, f), size(f)));
+        responses = cat(3, responses, wkeep(filter2(kernel, f), size(f)));
     end
     
     max_response = max(responses, [], 3);
@@ -72,9 +72,10 @@ end
 % [2^(-1/2) 1 2^(1/2) 2 2^(3/2)]
 for scale = [2^(-1/2) 1 2^(1/2) 2 2^(3/2)]
     kernel = diff_of_gaussian_kernel(0.5, scale);
-    DoG_feature = wkeep(filt2(kernel, f), size(f));
+    DoG_feature = wkeep(filter2(kernel, f), size(f));
     features = cat(3, features, DoG_feature);
 end
 
+features = features(:,:,2:end);
 end
 

@@ -17,7 +17,7 @@ gaussian_dy = -2*y.*exp(-(x.^2+y.^2)/(2*sigma^2));
 
 %Pad image
 f_size = size(f);
-f_padded = paddarray(f, max_dist, 'symmetric', 'both');
+f_padded = padarray(f, max_dist, 'symmetric', 'both');
 
 %Compute partial derivatives of f
 df_dx = conv2(gaussian_dx, f_padded);
@@ -43,7 +43,7 @@ hess_eig1 = zeros(size(f)); %Principal curvatures
 hess_eig2 = zeros(size(f)); 
 
 %Frangi parameter
-beta = 0.5
+beta = 0.5;
 
 %Compute Frobenius norms
 for a = 1:size(hess, 1)
@@ -51,7 +51,7 @@ for a = 1:size(hess, 1)
         hess_ab = squeeze(hess(a, b, :, :));
         hess_eigs = eig(hess_ab);
         if abs(hess_eigs(1)) > abs(hess_eigs(2))
-            hess_eigs([1 2]) = hes_eigs([2 1]);
+            hess_eigs([1 2]) = hess_eigs([2 1]);
         end
         
         %Store principal curvatures
@@ -68,8 +68,9 @@ c = max(max(frobenius_norm));
 %Compute vesselness
 indices = hess_eig2 > 0;
 R_b(indices) = hess_eig1(indices)./hess_eig2(indices);
-vesselness(indices) = exp(-(R_b(indices).^2)/(2*beta^2)) * (1 - exp(-frobenius_norm(indices).^2/(2*c^2)))
+vesselness(indices) = exp(-(R_b(indices).^2)/(2*beta^2)) * (1 - exp(-frobenius_norm(indices).^2/(2*c^2)));
 
-features = [vesselness frobenius_norm hess_eig1 hess_eig2];
+%features = [vesselness frobenius_norm hess_eig1 hess_eig2];
+features = cat(3, vesselness, frobenius_norm, hess_eig1, hess_eig2);
 
 end

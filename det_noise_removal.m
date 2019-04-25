@@ -2,7 +2,8 @@ function [ noise_removed ] = det_noise_removal( f )
 
     %window size
     n=15;
-    
+    f_size = size(f);
+    %f = padarray(f, [15,15], 'symmetric', 'both');
     %finding max band, uk, of each pixel
     f_max_band(:,:,1) = nlfilter(f(:,:,1), [n n], @max_band);
     f_max_band(:,:,2) = nlfilter(f(:,:,2), [n n], @max_band);
@@ -40,5 +41,11 @@ function [ noise_removed ] = det_noise_removal( f )
             end
         end
     end
+    
+%     for i=1:f_size(3)
+%         noise_removed(:, :, i) = wkeep(noise_removed, f_size(1:2));
+%     end
+%     Nkeep=f_size(1);  % size to keep
+
 end
 
