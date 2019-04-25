@@ -10,22 +10,8 @@ for image = 1:size(dataset, 4)
     dataset(:,:,1:end-1,image) = apply_weights(dataset(:,:,1:end-1,image));
 end
 
-%Reshape such that each column is on data sample (i.e. features for a
-%single pixel)
-dataset = permute(dataset, [3 1 2 4]);
-dataset = reshape(dataset, [size(dataset, 1) size(dataset, 2)*size(dataset, 3)*size(dataset, 4)]);
-
-%Select feature vectors based on class
-bg_vectors = dataset(1:end-1, dataset(end, :) == 0); %Class 0 corresponding to background
-v_vectors = dataset(1:end-1, dataset(end, :) == 1); %Class 1 corresponding to background
-
-%Compute class means
-bg_mean = mean(bg_vectors, 2);
-v_mean = mean(v_vectors, 2);
-
-%Compute background covariance matrix
-bg_covariance = dataset_covariance(bg_vectors, bg_mean);
-v_covariance = dataset_covariance(v_vectors, v_mean);
+bg_vectors, v_vectors = extract_class_vectors(dataset);
+bg_mean, v_mean, bg_covariance, v_covariance = process_class_vectors(bg_vectors, v_vectors);
 
 %Compute class mean covariance matrix: http://www3.ntu.edu.sg/home/EXDJiang/JiangX.D.-PAMI-09P.pdf
 num_bg = size(bg_vectors, 2);
