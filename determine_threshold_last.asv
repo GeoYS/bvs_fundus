@@ -1,0 +1,44 @@
+function [ threshold] =...
+    determine_threshold_last( vessel_class, bg_class, target_error_rate )
+%Compute the threshold value to achieve given error rate.
+%   error_rate: ratio of incorrectly classified samples to all classified
+%   samples
+%   vessel_class: feature vector matrix, each column contains feature
+%   vector, the last element in the vector is the discriminant value that
+%   will determine the threshold. It is assumed to be sorted, ascending, by
+%   the decision variable value.
+%   bg_class: same as correct_class
+
+%The algorithm to determine threshold:
+% 1. Initialize class indices to 1
+% 2. Increment the index of the class such that the current
+%    threshold changes the least. If equal, incr index of correct class.
+% 3. Repeat step 2 until the error rate reaches the target error rate.
+
+vessel_class_index = 1; 
+bg_class_index = 1;
+dir = +1;
+    
+error_rate = 0;
+current_threshold = vessel_class(end, vessel_class_index);
+while vessel_class_index <= size(vessel_class, 2) && bg_class_index <= size(bg_class, 2)
+    %Increment index, find new threshold
+    if bg_class(end, bg_class_index + dir) < vessel_class(end, vessel_class_index + dir)
+        bg_class_index = bg_class_index + dir;
+        current_threshold = bg_class(end, bg_class_index);
+    else
+        vessel_class_index = vessel_class_index + dir;
+        current_threshold = vessel_class(end, vessel_class_index);
+    end
+    
+    %Compute error rate with new threshold
+    num_correct = vessel_class_index + (size(bg_class, 2) - bg_class_index);
+    num_wrong = (size(bg_class, 2);
+    
+    error_rate = num_wrong / (num_wrong + num_correct);
+end
+
+threshold = old_threshold;
+
+end
+
