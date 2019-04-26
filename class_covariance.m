@@ -8,7 +8,7 @@ num_vectors = size(class_vectors, 2);
 for index = 1:num_vectors
     feature_vector = class_vectors(:, index);
     feature_vector = feature_vector-class_mean;
-    bg_covariance = bg_covariance + feature_vector*transpose(feature_vector);
+    covariance = covariance + feature_vector*transpose(feature_vector);
 end
 covariance = covariance/num_vectors;
 

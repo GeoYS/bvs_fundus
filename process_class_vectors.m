@@ -6,8 +6,8 @@ bg_mean = mean(bg_vectors, 2);
 v_mean = mean(v_vectors, 2);
 
 %Compute background covariance matrix
-bg_covariance = dataset_covariance(bg_vectors, bg_mean);
-v_covariance = dataset_covariance(v_vectors, v_mean);
+bg_covariance = class_covariance(bg_vectors, bg_mean);
+v_covariance = class_covariance(v_vectors, v_mean);
 
 end
 
