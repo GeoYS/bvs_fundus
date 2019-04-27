@@ -19,21 +19,17 @@ for cc_index = 1:connected_components.NumObjects
         cc_image = imdilate(cc_image, structural_element);
     end
 
-    %Show component image
-    figure(cc_index+1);
-    imshow(cc_image);
-
     %Skeletonize image before finding branchpoints
-    cc_skel = bwskel(cc_image);
+    cc_skel = bwmorph(cc_image, 'skel', Inf);
     %find branch points
     cc_branchpoints = bwmorph(cc_skel, 'branchpoints');
 
-    num_branchpoints = numel(find(cc_branchpoints));
-    num_total_pixels = numel(cc_image);
+    num_branchpoints = nnz(cc_branchpoints);
+    num_total_pixels = nnz(cc_image);
     r_s = double(num_branchpoints)/num_total_pixels;
 
     %Get covariance matrix of vessel pixel locations
-    [y, x] = find(cc_image == 1);
+    [y, x] = find(cc_image);
     cov_matrix = cov( [x y] );
 
     eig_values = eig(cov_matrix);
@@ -44,15 +40,15 @@ for cc_index = 1:connected_components.NumObjects
 
     %Generate convex hull image
     cc_convex_hull = bwconvhull(cc_image);
-    num_convex_hull_pixels = numel(cc_convex_hull);
+    num_convex_hull_pixels = nnz(cc_convex_hull);
     r_c = double(num_total_pixels)/num_convex_hull_pixels;
 
     if r_s > T_s
         %Pathological region detected
-        path_regions_removed(cc_image == 1) = 0;
+        path_regions_removed(cc_image) = 0;
     elseif (r_A > T_A) && (r_c > T_c)
         %Pathological region detected
-        path_regions_removed(cc_image == 1) = 0;
+        path_regions_removed(cc_image) = 0;
     else
         %Not a pathological region, do nothing
     end

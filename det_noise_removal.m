@@ -1,18 +1,22 @@
-function [ noise_removed ] = det_noise_removal( f )
+function [ noise_removed ] = det_noise_removal( f, inner_width, outer_width )
 
     %window size
-    n=15;
-    f_size = size(f);
-    %f = padarray(f, [15,15], 'symmetric', 'both');
+    n = inner_width;
+    m = outer_width;
+    band_width = (m-n)/2;
+    band_mask = true(m);
+    band_mask(band_width+1:m-band_width,band_width+1:m-band_width) = false;
+    num_in_band = outer_width^2-inner_width^2;
+    
     %finding max band, uk, of each pixel
-    f_max_band(:,:,1) = nlfilter(f(:,:,1), [n n], @max_band);
-    f_max_band(:,:,2) = nlfilter(f(:,:,2), [n n], @max_band);
-    f_max_band(:,:,3) = nlfilter(f(:,:,3), [n n], @max_band);
+    f_max_band(:,:,1) = ordfilt2(f(:,:,1), num_in_band, band_mask);
+    f_max_band(:,:,2) = ordfilt2(f(:,:,2), num_in_band, band_mask);
+    f_max_band(:,:,3) = ordfilt2(f(:,:,3), num_in_band, band_mask);
 
     %find min_band, vk, of each pixel
-    f_min_band(:,:,1) = nlfilter(f(:,:,1), [n n], @min_band);
-    f_min_band(:,:,2) = nlfilter(f(:,:,2), [n n], @min_band);
-    f_min_band(:,:,3) = nlfilter(f(:,:,3), [n n], @min_band);
+    f_min_band(:,:,1) = ordfilt2(f(:,:,1), 1, band_mask);
+    f_min_band(:,:,2) = ordfilt2(f(:,:,2), 1, band_mask);
+    f_min_band(:,:,3) = ordfilt2(f(:,:,3), 1, band_mask);
 
     %finding min of max values, so uk-min for each neighbourhood
     min_f_max_band(:,:,1) = ordfilt2(f_max_band(:,:,1), 1, true(n));
@@ -41,11 +45,5 @@ function [ noise_removed ] = det_noise_removal( f )
             end
         end
     end
-    
-%     for i=1:f_size(3)
-%         noise_removed(:, :, i) = wkeep(noise_removed, f_size(1:2));
-%     end
-%     Nkeep=f_size(1);  % size to keep
-
 end
 

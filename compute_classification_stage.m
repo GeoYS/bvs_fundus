@@ -1,4 +1,4 @@
-function [ v_covariance, bg_covariance, v_mean, bg_mean, T_v, T_b, v_vectors_x, bg_vectors_x ] ...
+function [ eigvec_v, eigvec_bg, eigval_v, eigval_bg, v_mean_proj, bg_mean_proj, T_v, T_b, v_vectors_x, bg_vectors_x ] ...
     = compute_classification_stage( v_vectors, bg_vectors, error_v, error_b, reg_param, is_last )
 %Compute nth stage of the classification network based on the training set.
 %   v_vectors and bg_vectors are the training set, each column containing
@@ -18,7 +18,7 @@ function [ v_covariance, bg_covariance, v_mean, bg_mean, T_v, T_b, v_vectors_x, 
 eigvec_v = transpose(normc(eigvec_v));
 eigvec_bg = transpose(normc(eigvec_bg));
 
-%Mean vector projections
+%Mean vector projections onto each eignenvector
 v_mean_proj = eigvec_v*v_mean;
 bg_mean_proj = eigvec_bg*bg_mean;
 
