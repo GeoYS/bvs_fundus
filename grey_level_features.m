@@ -1,4 +1,4 @@
-function [ features ] = grey_level_statistics( f, window_size )
+function [ features ] = grey_level_features( f, window_size )
 %Compute grey-level-based features as describe here: https://ieeexplore.ieee.org/abstract/document/5545439
 %   f is input image
 %   window_size ranges from 3 to 15 in steps of 2

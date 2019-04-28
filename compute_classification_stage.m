@@ -1,4 +1,4 @@
-function [ eigvec_v, eigvec_bg, eigval_v, eigval_bg, v_mean_proj, bg_mean_proj, T_v, T_b, v_vectors_x, bg_vectors_x ] ...
+function [ classification_stage, v_vectors_x, bg_vectors_x ] ...
     = compute_classification_stage( v_vectors, bg_vectors, error_v, error_b, reg_param, is_last )
 %Compute nth stage of the classification network based on the training set.
 %   v_vectors and bg_vectors are the training set, each column containing
@@ -9,7 +9,10 @@ function [ eigvec_v, eigvec_bg, eigval_v, eigval_bg, v_mean_proj, bg_mean_proj, 
 %   is_last: determines the type of threshold. If true, only the first
 %   error parameter, error_v, is used.
 
-[bg_mean, v_mean, bg_covariance, v_covariance] = process_class_vectors(v_vectors, bg_vectors);
+bg_mean = mean(bg_vectors,2);
+v_mean = mean(v_vectors, 2);
+bg_covariance = cov(transpose(bg_vectors), 1);
+v_covariance = cov(transpose(v_vectors), 1);
 
 [eigvec_v, eigval_v] = eig(v_covariance);
 [eigvec_bg, eigval_bg] = eig(bg_covariance);
@@ -48,7 +51,7 @@ d_bg = @(z) sum(((eigvec_bg*z-bg_mean_proj).^2)./eigval_bg);
 %for each feature vector
 d_v_vals = zeros([0 size(v_vectors, 2)]);
 for index = 1:size(v_vectors, 2)
-    d_v_vals(index) = d_v(v_vectors(:, index)) - d_v(v_vectors(:, index));
+    d_v_vals(index) = d_v(v_vectors(:, index)) - d_bg(v_vectors(:, index));
 end
 v_vectors = [v_vectors; d_v_vals];
 
@@ -72,13 +75,25 @@ bg_vectors = transpose(...
 if is_last
     %T_v contains the binary decision threshold if last stage.
     [T_v] = determine_threshold_last(v_vectors, bg_vectors);
+    T_b = 12345; %Dummy value
+    v_vectors_x = []; %Dummy value
+    bg_vectors_x = 12345; %Dummy value
 else
     [T_v, v_index_lower, bg_index_lower] = determine_threshold(v_vectors, bg_vectors, error_v, 'upper');
-    [T_b, v_index_upper, bg_index_upper] = determine_threshold(bg_vectors, v_vectors, error_b, 'lower');
+    [T_b, bg_index_upper, v_index_upper] = determine_threshold(bg_vectors, v_vectors, error_b, 'lower');
 
     v_vectors_x = v_vectors(1:end-1, v_index_lower + 1:v_index_upper-1);
     bg_vectors_x = bg_vectors(1:end-1, bg_index_lower + 1:bg_index_upper-1);
 end
+
+classification_stage = struct('eigvec_v', eigvec_v,...
+    'eigvec_bg', eigvec_bg,...
+    'eigval_v', eigval_v,...
+    'eigval_bg', eigval_bg,...
+    'v_mean_proj', v_mean_proj,...
+    'bg_mean_proj', bg_mean_proj,...
+    'thresh_v', T_v,...
+    'thresh_b', T_b);
 
 end
 

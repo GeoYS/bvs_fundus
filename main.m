@@ -10,6 +10,8 @@
 % eye-related ailments. Doctors are then able to focus their attention
 % where it is needed the most, while patients are able to receive timely
 % responses.
+%
+% This report will provide a conceptual overview 
 
 %%2. Proposed Solution
 % The solution comes from the paper _Blood vessel segmentation from fundus 
@@ -29,6 +31,21 @@
 % as very thin blood vessels. This is done by applying a specialized 
 % detail-preserving truncation filter. 
 %
+% Various features are then extracted on the pixel level, such that each
+% pixel in the image has a vector of features associated with it. The
+% following features are extracted:
+% * Matched filter response
+% * 2-D Gabor wavelet transform
+% * Grey-level-based features
+% * Frangi filter
+% * Difference of Gaussian
+% Because each color channel can have similar features, there is a level of
+% redundancy when using all three channel's features. To improve the
+% reliability of the feature set, the three channels are fused and reduced
+% using assymetric principal component analysis. Using this method, each
+% color channel is given a weighting. Green is given the most weight
+% because it tends to have the highest contrast in fundus images.
+%
 % To create the cascade classification network, it is trained via a one-pass
 % non-iterative feed-foward process. The class discriminant function is the
 % Mahalonobis distance function. The decision variable at each stage of the
@@ -45,7 +62,7 @@
 % parameters. If the decision variable falls between these two values, the
 % classifier returns a third class representing inconclusive
 % classification. During training, the subset of the training set that is
-% inconclusive is used to train the next dataset. During classification,
+% inconclusive is used to train the next stage. During classification,
 % the pixel is sent to the next stage to be classified.
 %
 % When all pixels in an image have been classified, the final
@@ -72,19 +89,22 @@
 % CHASE_DB1. Each dataset is publicly available and contains a set of
 % fundus images along with pixel labels hand-labelled by experts in the
 % field. For simplicity, this project will show the results using the
-% CHASE_DB1 dataset.
+% DRIVE dataset.
 %
 
 %Main script starts here.
-% tic
-% [ training, training_labels,...
-%     validation, validation_labels,...
-%     test, test_labels ] = load_CHASEDB1();
-% toc
-% show_image(training(:,:,:,1), 1, 'Sample fundus image from dataset');
+tic
+[ training, training_labels, training_masks,...
+    validation, validation_labels, validation_masks,...
+    test, test_labels, test_masks ] = load_DRIVE();
+toc
+show_image(training(:,:,:,1), 1, 'Sample fundus image from dataset');
+return
 
 %%4. Solution
-% 
+% To make this easier to demonstrate in real-time, the training set size is
+% reduced.
+training_size = 1;
 %%%4.1 Preprocessing
 % First, apply background normalization to remove intensity fluctuations.
 % window_size = 25;
@@ -105,12 +125,31 @@
 % toc % about 7 minutes
 % show_image(training(:,:,:,1), 2.2, 'Detail-preserved, noise-removed image');
 
+% The feature vectors are then computed for each pixel in each image in the
+% training set.
+% tic
+% n_features = 92; %Per channel
+% features = zeros([size(george, 1) size(george, 2) size(george, 3)*n_features+1 training_size]);
+for index = 1:training_size
+   features(:,:,
+end
+% features(:,:,end) = training_labels(:,:,img_index);
+% toc %8 minutes
+
 return
 
 %%5. Visualization of Results
 %
 
 %%6. Analysis and Conclusions
+% When extracting the features, the paper did not mention certain
+% parameters. Hence, only 95 features are extracted per channel, before the
+% total of 285 features is reduced to 100.
+% To ensure stability, values of NaN and Inf are set to 0 and the max
+% non-Inf value, respectively, after the preprocessing stage.
+% Matlab's built-in morphological operations produce slightly different
+% results than the paper. This could potentially be an error in choosing
+% our structural element when applying the operations.
 
 %Load image
 f = double(imread('fundus_test_2_comp.jpg'));

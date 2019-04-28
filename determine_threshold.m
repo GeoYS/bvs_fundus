@@ -30,15 +30,12 @@ else
     return;
 end
 
-error_rate = 0;
-old_threshold = correct_class(end, correct_class_index);
-current_threshold = correct_class(end, correct_class_index);
+threshold = correct_class(end, correct_class_index);
 wrong_was_last = false;
-while error_rate < target_error_rate
-    old_threshold = current_threshold;
+while wrong_class_index < size(wrong_class, 2) && correct_class_index < size(correct_class, 2) 
     
     %Increment index, find new threshold
-    if wrong_class(end, wrong_class_index + dir) < correct_class(end, correct_class_index + dir)
+    if dir*wrong_class(end, wrong_class_index + dir) < dir*correct_class(end, correct_class_index + dir)
         wrong_class_index = wrong_class_index + dir;
         current_threshold = wrong_class(end, wrong_class_index);
         wrong_was_last = true;
@@ -58,9 +55,11 @@ while error_rate < target_error_rate
     end
     
     error_rate = num_wrong / (num_wrong + num_correct);
+    
+    if error_rate < target_error_rate
+        threshold = current_threshold;
+    end
 end
-
-threshold = old_threshold;
 
 if wrong_was_last
     wrong_class_index = wrong_class_index - dir;

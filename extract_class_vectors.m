@@ -11,7 +11,7 @@ dataset = reshape(dataset, [size(dataset, 1) size(dataset, 2)*size(dataset, 3)*s
 
 %Select feature vectors based on class, exclude class label
 bg_vectors = dataset(1:end-1, dataset(end, :) == 0); %Class 0 corresponding to background
-v_vectors = dataset(1:end-1, dataset(end, :) == 1); %Class 1 corresponding to background
+v_vectors = dataset(1:end-1, dataset(end, :) ~= 0); %Class 1 corresponding to background
 
 end
 

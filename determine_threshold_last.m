@@ -1,4 +1,4 @@
-function [ threshold] =...
+function [ threshold ] =...
     determine_threshold_last( vessel_class, bg_class)
 %Compute the threshold value to achieve minimum error rate with binary
 %decision.
@@ -23,7 +23,7 @@ dir = +1;
 min_error_rate = 0;
 current_threshold = vessel_class(end, vessel_class_index);
 threshold = current_threshold;
-while vessel_class_index <= size(vessel_class, 2) && bg_class_index <= size(bg_class, 2)
+while vessel_class_index < size(vessel_class, 2) && bg_class_index < size(bg_class, 2)
     %Increment index, find new threshold
     if bg_class(end, bg_class_index + dir) < vessel_class(end, vessel_class_index + dir)
         bg_class_index = bg_class_index + dir;

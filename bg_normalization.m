@@ -14,6 +14,17 @@ function [ bg_normalized ] = bg_normalization( f, window )
 
     %dividing by median filtered version to alleviate image intensity fluctuation
     bg_normalized = f./f_median;
-
+    
+    bg_normalized = fix_values(bg_normalized);
+    
 end
 
+function [ image ] = fix_values( image )
+%Helper function to remove NaN and Inf values. 
+%   Input expected to be 2-D matrix.
+    
+    image(isnan(image)) = 0; % NaN usually a zero divide by zero case.
+    
+    maxval = max(image(~isinf(image)));
+    image(isinf(image)) = maxval; % Threshold to max non-inf value.
+end
